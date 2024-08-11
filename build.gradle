@@ -21,14 +21,13 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.0'
 	implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
 	implementation 'io.swagger.core.v3:swagger-annotations:2.2.8'
-
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	runtimeOnly 'com.h2database:h2'
 }
 
@@ -49,6 +48,10 @@ task buildSpringServer(type: org.openapitools.generator.gradle.plugin.tasks.Gene
 	apiPackage = "com.example.todoapi.controller" // webのリクエストを受けるオブジェクトをcontrollerと呼ぶ
 	modelPackage = "com.example.todoapi.model"
 	configOptions = [
-			interfaceOnly: "true"
+			interfaceOnly: "true",
+			useSpringBoot3: "true"
 	]
 }
+
+compileJava.dependsOn tasks.buildSpringServer
+sourceSets.main.java.srcDir "$buildDir/spring/src/main/java"
