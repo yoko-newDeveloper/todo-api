@@ -2,14 +2,16 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.2'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id "org.openapi.generator" version "7.7.0"
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '21'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
 	}
 }
 
@@ -20,9 +22,33 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.0'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.8'
+
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+task buildApiDoc(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+	generatorName = "html2"
+	inputSpec = "$rootDir/src/main/resources/api-schema.yml" .toString()
+	outputDir = "$buildDir/apidoc" .toString()
+}
+
+task buildSpringServer(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+	generatorName = "spring"
+	inputSpec = "$rootDir/src/main/resources/api-schema.yml".toString()
+	outputDir = "$buildDir/spring".toString() // 生成するパス
+	apiPackage = "com.example.todoapi.controller" // webのリクエストを受けるオブジェクトをcontrollerと呼ぶ
+	modelPackage = "com.example.todoapi.model"
+	configOptions = [
+			interfaceOnly: "true"
+	]
 }
